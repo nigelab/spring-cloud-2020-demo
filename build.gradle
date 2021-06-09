@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.5.0'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id 'maven-publish'
 }
 
 group = 'com.example'
@@ -50,4 +51,29 @@ dependencyManagement {
 
 test {
     useJUnitPlatform()
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+    repositories {
+        def bSnapshot = version.endsWith('SNAPSHOT')
+        maven {
+            name 'buildDir'
+            url bSnapshot ? "$buildDir/mavenSnapshots" : "$buildDir/mavenReleases"
+        }
+    }
 }
